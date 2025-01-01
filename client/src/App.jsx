@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet } from "react-router";
 import LoginForm from "./pages/Login";
 import RegisterForm from "./pages/Register";
+import HomePages from "./pages/homepage";
 
 function App() {
   return (
@@ -8,6 +9,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
+        <Route path="/" element={<HomePages />} />
       </Routes>
     </BrowserRouter>
   );
