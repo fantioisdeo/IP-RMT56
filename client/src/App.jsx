@@ -9,7 +9,9 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginForm />} />
         <Route path="/register" element={<RegisterForm />} />
-        <Route path="/" element={<HomePages />} />
+        <Route path="/">
+          <Route index element={<HomePages />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
