@@ -1,12 +1,14 @@
 // Happy coding guys
+require('dotenv').config()
+
 const express = require('express');
 const app = express();
 
 const userRouter = require("./routes/userRouter");
 const { errorHandler } = require('./middlewares/errorHandler');
 
-app.set("view engine", "ejs");
-
+const cors = require("cors");
+app.use(cors());
 // app.use(express.static('public')); 
 app.use(express.urlencoded({ extended: false })); 
 app.use(express.json());

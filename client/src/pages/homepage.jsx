@@ -1,7 +1,32 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import icon from '../assets/ball.png';
 
 const HomePages = () => {
+  const newsRef = useRef(null);
+
+  // Auto scroll function
+  useEffect(() => {
+    const autoScroll = () => {
+      if (newsRef.current) {
+        const scrollWidth = newsRef.current.scrollWidth;
+        const clientWidth = newsRef.current.clientWidth;
+
+        if (newsRef.current.scrollLeft + clientWidth >= scrollWidth) {
+          // Reset scroll to the left if it reaches the end
+          newsRef.current.scrollLeft = 0;
+        } else {
+          // Scroll to the right by a fixed amount (e.g., 300px)
+          newsRef.current.scrollLeft += 300;
+        }
+      }
+    };
+
+    // Set an interval for auto scrolling every 3 seconds
+    const scrollInterval = setInterval(autoScroll, 3000);
+
+    return () => clearInterval(scrollInterval); // Cleanup on component unmount
+  }, []);
+
   return (
     <div className="bg-gray-800 text-white min-h-screen">
       <header className="bg-gray-900 p-6 shadow-md">
@@ -10,10 +35,11 @@ const HomePages = () => {
             <img src={icon} alt="Icon" className="w-8 h-8 mr-2 inline-block" /> The Ultimate Football Dashboard
           </h1>
           <div>
-            <a 
-            href="/login"
-            className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg shadow-xl transform transition-all duration-300 ease-in-out hover:scale-105 hover:from-blue-600 hover:to-blue-500 hover:shadow-2xl hover:opacity-90">
-            Login
+            <a
+              href="/login"
+              className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg shadow-xl transform transition-all duration-300 ease-in-out hover:scale-105 hover:from-blue-600 hover:to-blue-500 hover:shadow-2xl hover:opacity-90"
+            >
+              Login
             </a>
           </div>
         </div>
@@ -22,10 +48,26 @@ const HomePages = () => {
       <nav className="bg-gray-900 shadow-md">
         <div className="max-w-7xl mx-auto">
           <ul className="flex space-x-6 text-lg">
-            <li><a href="#" className="hover:text-blue-400">Home</a></li>
-            <li><a href="#" className="hover:text-blue-400">Matches</a></li>
-            <li><a href="#" className="hover:text-blue-400">Standings</a></li>
-            <li><a href="#" className="hover:text-blue-400">Teams</a></li>
+            <li>
+              <a href="#" className="hover:text-blue-400">
+                Home
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-blue-400">
+                Matches
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-blue-400">
+                Standings
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-blue-400">
+                Teams
+              </a>
+            </li>
           </ul>
         </div>
       </nav>
@@ -76,7 +118,7 @@ const HomePages = () => {
             </div>
           </section>
 
-          <section>
+          <section className="lg:grid-cols-3 gap-8 mb-16">
             <h2 className="text-3xl font-semibold text-blue-400 mb-8">League Standings</h2>
             <div className="overflow-x-auto bg-gray-700 rounded-lg shadow-lg">
               <table className="min-w-full text-sm text-left text-gray-400">
@@ -121,6 +163,38 @@ const HomePages = () => {
                   </tr>
                 </tbody>
               </table>
+            </div>
+          </section>
+
+          <section className="mb-16">
+            <h2 className="text-3xl font-semibold text-blue-400 mb-8">Latest News</h2>
+            <div
+              ref={newsRef}
+              className="flex space-x-8 overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+            >
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg snap-start">
+                <h3 className="text-xl font-semibold text-blue-400 mb-4">Exciting Transfer News</h3>
+                <p className="text-gray-400 mb-4">
+                  The biggest transfer of the summer is about to happen! Top players are making moves to new teams, and the football world is buzzing with excitement.
+                </p>
+                <span className="text-gray-500 text-sm">Published: Jan 1, 2025</span>
+              </div>
+
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg snap-start">
+                <h3 className="text-xl font-semibold text-blue-400 mb-4">Upcoming Tournament Highlights</h3>
+                <p className="text-gray-400 mb-4">
+                  The tournament is heating up, and teams are preparing for some thrilling matches. Here's what to expect in the next few weeks!
+                </p>
+                <span className="text-gray-500 text-sm">Published: Dec 30, 2024</span>
+              </div>
+
+              <div className="bg-gray-700 p-6 rounded-lg shadow-lg snap-start">
+                <h3 className="text-xl font-semibold text-blue-400 mb-4">New Star on the Horizon</h3>
+                <p className="text-gray-400 mb-4">
+                  A young prodigy is making waves in the football scene. Find out who the next big star is, and how he's set to change the game.
+                </p>
+                <span className="text-gray-500 text-sm">Published: Dec 28, 2024</span>
+              </div>
             </div>
           </section>
         </div>

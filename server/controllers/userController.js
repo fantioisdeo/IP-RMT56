@@ -60,21 +60,29 @@ exports.loginGoggle = async (req, res, next) => {
     try {  
         const client = new OAuth2Client();
 
-        async function verify() {
-            const ticket = await client.verifyIdToken({
-                idToken: token,
-                audience: process.env.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
-                // Or, if multiple clients access the backend:
-                //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
-            });
-            const payload = ticket.getPayload();
-            const userid = payload['sub'];
-            // If the request specified a Google Workspace domain:
-            // const domain = payload['hd'];
+        const ticket = await client.verifyIdToken({
+            idToken: req.body.googleToken,
+            audience: process.env.CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+            // Or, if multiple clients access the backend:
+            //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+        });
+        const payload = ticket.getPayload();
+
+        const user = await User.findOne({where: {email: payload.email}})
+        if (!user) {
+            // throw { name: "Unauthorized", message: "Invalid email/password"};
+            await User.create({fullName: payload.name, email: payload.email, password: Math.random().toString()});
         }
 
-        res.status(200).json({ message: "Login Success" })
+        const access_token = signToken({id: user.id});
+        // const userid = payload['sub'];
+        // If the request specified a Google Workspace domain:
+        // const domain = payload['hd'];
+
+        res.status(200).json({ message: "Login Success", access_token })
     } catch (error) {
+        console.log(error);
+        
         next(error)
     }
 }
