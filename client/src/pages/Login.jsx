@@ -1,12 +1,31 @@
 import trophy from '../assets/image.png'; 
 import icon from '../assets/ball.png'; 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { serverApi } from '../../utils/api';
 import { useNavigate } from 'react-router';
 
 
 function LoginForm() {
     const navigate = useNavigate();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleLogin = async (e) => {
+        e.preventDefault();
+        try {
+            const { data } = await serverApi.post("/login", {
+                email,
+                password
+            });
+            console.log(data);
+    
+            localStorage.setItem("access_token", data.access_token);
+            navigate("/news");
+        } catch (error) {
+            console.log(" ~ handleLogin ~ error", error); // Log the actual error
+        }
+    }
     async function handleCredentialResponse(response) {
         console.error("Encoded JWT ID token: " + response.credential);
 
@@ -44,7 +63,7 @@ function LoginForm() {
                         <img src={icon} alt="Icon" class="w-8 h-8 mr-2 inline-block" />
                         The Ultimate Football Dashboard
                     </h2>
-                    <form action="#" method="POST">
+                    <form onSubmit={handleLogin}>
                         <div class="mb-4">
                             <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
                             <input
@@ -53,6 +72,8 @@ function LoginForm() {
                                 name="email"
                                 placeholder="Enter your email"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:outline-none"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 required />
                         </div>
 
@@ -64,6 +85,8 @@ function LoginForm() {
                                 name="password"
                                 placeholder="Enter your password"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200 focus:outline-none"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
                                 required />
                         </div>
 

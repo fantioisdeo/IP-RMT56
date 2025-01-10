@@ -76,7 +76,7 @@ const NewsPage = () => {
           </h1>
           <div>
             <a
-              href="/logout"
+              href="/"
               className="inline-block px-4 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-lg shadow-xl transform transition-all duration-300 ease-in-out hover:scale-105 hover:from-blue-600 hover:to-blue-500 hover:shadow-2xl hover:opacity-90"
             >
               Logout
@@ -92,22 +92,7 @@ const NewsPage = () => {
               <a href="#" className="hover:text-blue-400">
                 Home
               </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-blue-400">
-                Matches
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-blue-400">
-                Standings
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-blue-400">
-                Teams
-              </a>
-            </li>
+            </li>   
           </ul>
         </div>
       </nav>
@@ -119,32 +104,34 @@ const NewsPage = () => {
             <section className="bg-gray-700 p-6 rounded-lg shadow-lg mb-8">
               <h2 className="text-2xl font-semibold text-blue-400 mb-4">Add New News</h2>
               <div className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="News Title"
-                  className="w-full p-2 bg-gray-800 text-white rounded-lg"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                />
-                <textarea
-                  placeholder="News Description"
-                  className="w-full p-2 bg-gray-800 text-white rounded-lg"
-                  value={newDescription}
-                  onChange={(e) => setNewDescription(e.target.value)}
-                />
-                <input
-                  type="text"
-                  placeholder="News Date (e.g., Jan 1, 2025)"
-                  className="w-full p-2 bg-gray-800 text-white rounded-lg"
-                  value={newDate}
-                  onChange={(e) => setNewDate(e.target.value)}
-                />
-                <button
-                  onClick={handleAddNews}
-                  className="w-full bg-blue-600 text-white py-2 rounded-lg mt-4 hover:bg-blue-700"
-                >
-                  Add News
-                </button>
+                <form action="" method="post">
+                  <input
+                    type="text"
+                    placeholder="News Title"
+                    className="w-full p-2 bg-gray-800 text-white rounded-lg"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                  />
+                  <textarea
+                    placeholder="News Description"
+                    className="w-full p-2 bg-gray-800 text-white rounded-lg"
+                    value={newDescription}
+                    onChange={(e) => setNewDescription(e.target.value)}
+                  />
+                  <input
+                    type="text"
+                    placeholder="News Date (e.g., Jan 1, 2025)"
+                    className="w-full p-2 bg-gray-800 text-white rounded-lg"
+                    value={newDate}
+                    onChange={(e) => setNewDate(e.target.value)}
+                  />
+                  <button
+                    onClick={handleAddNews}
+                    className="w-full bg-blue-600 text-white py-2 rounded-lg mt-4 hover:bg-blue-700"
+                  >
+                    Add News
+                  </button>
+                </form>
               </div>
             </section>
           )}

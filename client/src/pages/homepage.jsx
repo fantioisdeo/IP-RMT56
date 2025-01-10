@@ -1,10 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import icon from '../assets/ball.png';
+import axios from "axios";
+
+const Loading = () => {
+  return (
+    <div className="flex justify-center items-center space-x-4">
+      <div className="ball-loader"></div>
+      <div className="text-2xl text-white">Loading Matches...</div>
+    </div>
+  );
+};
 
 const HomePages = () => {
   const newsRef = useRef(null);
 
-  // Auto scroll function
   useEffect(() => {
     const autoScroll = () => {
       if (newsRef.current) {
@@ -12,20 +21,98 @@ const HomePages = () => {
         const clientWidth = newsRef.current.clientWidth;
 
         if (newsRef.current.scrollLeft + clientWidth >= scrollWidth) {
-          // Reset scroll to the left if it reaches the end
           newsRef.current.scrollLeft = 0;
         } else {
-          // Scroll to the right by a fixed amount (e.g., 300px)
           newsRef.current.scrollLeft += 300;
         }
       }
     };
 
-    // Set an interval for auto scrolling every 3 seconds
     const scrollInterval = setInterval(autoScroll, 3000);
 
-    return () => clearInterval(scrollInterval); // Cleanup on component unmount
+    return () => clearInterval(scrollInterval); 
   }, []);
+
+  const [matches, setMatches]                   = useState([]);
+  const [topScorers, setTopScorers]             = useState([]);
+  const [matchesNow, setMatchesNow]             = useState([]);
+  const [matchesTomorrow, setMatchesTomorrow]   = useState([]);
+  const [loading, setLoading]                   = useState(true);
+  const [error, setError]                       = useState(null);
+
+  const today = new Date();
+  const todayFormatted = today.toISOString().split('T')[0]; 
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  const tomorrowFormatted = tomorrow.toISOString().split('T')[0];
+
+  useEffect(() => {
+    const APIkey                = '6bfd4dbfd450b9b417182535a629b7da5e11af7cddad0d2f3a83d79808aab7b4';
+    const endpoint              = 'https://apiv2.apifootball.com/';
+    const urlMatches            = `${endpoint}?action=get_standings&league_id=207&APIkey=${APIkey}`;
+    const urlTopScorers         = `${endpoint}?action=get_topscorers&league_id=207&APIkey=${APIkey}`;
+    const urlMatchesNow         = `${endpoint}?action=get_predictions&APIkey=${APIkey}&from=${todayFormatted}&to=${todayFormatted}`;
+    const urlMatchestomorrow    = `${endpoint}?action=get_predictions&APIkey=${APIkey}&from=${tomorrowFormatted}&to=${tomorrowFormatted}`;
+
+    axios.get(urlMatches)
+      .then(response => {
+        console.log(response);
+        
+        setMatches(response.data || []); 
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error); 
+        setLoading(false);
+      });
+
+    axios.get(urlTopScorers)
+      .then(response => {
+        console.log(response);
+        
+        setTopScorers(response.data || []); 
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error); 
+        setLoading(false);
+      });
+
+    axios.get(urlMatchesNow)
+      .then(response => {
+        
+        const matchesData = response.data.slice(0, 5)
+        
+        setMatchesNow(matchesData); 
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error); 
+        setLoading(false);
+      });
+
+    axios.get(urlMatchestomorrow)
+      .then(response => {
+        
+        const matchesData = response.data.slice(0, 5)
+        
+        setMatchesTomorrow(matchesData); 
+        setLoading(false);
+      })
+      .catch(error => {
+        setError(error); 
+        setLoading(false);
+      });
+  }, []); 
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
 
   return (
     <div className="bg-gray-800 text-white min-h-screen">
@@ -53,21 +140,6 @@ const HomePages = () => {
                 Home
               </a>
             </li>
-            <li>
-              <a href="#" className="hover:text-blue-400">
-                Matches
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-blue-400">
-                Standings
-              </a>
-            </li>
-            <li>
-              <a href="#" className="hover:text-blue-400">
-                Teams
-              </a>
-            </li>
           </ul>
         </div>
       </nav>
@@ -76,50 +148,81 @@ const HomePages = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold text-blue-400 mb-4">Today's Matches</h2>
-              <div className="flex justify-between text-xl">
-                <div className="font-semibold">Team A</div>
-                <div className="font-semibold">VS</div>
-                <div className="font-semibold">Team B</div>
-              </div>
-              <div className="mt-4 text-center text-sm text-gray-400">
-                <p>Match Time: 20:00</p>
-              </div>
+              <h2 className="text-2xl font-semibold text-blue-400 mb-4">Top Scorers Serie A</h2>
+              {topScorers.map((top, index) => {
+
+                  return (
+                    <ul className="space-y-4"
+                      key={top.team_key}>
+                      <li className="flex justify-between">
+                        <span>{top.player_name}</span>
+                        <span className="font-bold">{top.goals} Goals</span>
+                      </li>
+                    </ul>
+                  );
+                })
+              }
             </div>
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
-              <h2 className="text-2xl font-semibold text-blue-400 mb-4">Top Scorers</h2>
+              <h2 className="text-2xl font-semibold text-blue-400 mb-4">Today's Matches</h2>
               <ul className="space-y-4">
-                <li className="flex justify-between">
-                  <span>Player 1</span>
-                  <span className="font-bold">15 Goals</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Player 2</span>
-                  <span className="font-bold">12 Goals</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Player 3</span>
-                  <span className="font-bold">10 Goals</span>
-                </li>
+                {matchesNow && matchesNow.length > 0 ? (
+                  matchesNow.map((now, index) => (
+                    <li key={index} className="text-xl">
+                      <div className="mt-2 text-center text-sm text-gray-400">
+                        <p className="font-semibold">League Name: {now.league_name}</p>
+                      </div>
+
+                      <div className="flex items-center mb-2">
+                        <div className="flex-1 text-left font-semibold">{now.match_hometeam_name}</div>
+                        
+                        <div className="mx-4 text-xl font-semibold">VS</div>
+                        
+                        <div className="flex-1 text-right font-semibold">{now.match_awayteam_name}</div>
+                      </div>
+
+                      <div className="mt-2 text-center text-sm text-gray-400">
+                        <p className="font-semibold">Match Time: {now.match_time}</p>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <li>No matches available</li>
+                )}
               </ul>
             </div>
             <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
               <h2 className="text-2xl font-semibold text-blue-400 mb-4">Upcoming Matches</h2>
               <ul className="space-y-4">
-                <li className="flex justify-between">
-                  <span>Team C vs Team D</span>
-                  <span className="font-semibold">22:00</span>
-                </li>
-                <li className="flex justify-between">
-                  <span>Team E vs Team F</span>
-                  <span className="font-semibold">00:00</span>
-                </li>
+                {matchesTomorrow && matchesTomorrow.length > 0 ? (
+                  matchesTomorrow.map((tomorrow, index) => (
+                    <li key={index} className="text-xl">
+                      <div className="mt-2 text-center text-sm text-gray-400">
+                        <p className="font-semibold">League Name: {tomorrow.league_name}</p>
+                      </div>
+
+                      <div className="flex items-center mb-2">
+                        <div className="flex-1 text-left font-semibold">{tomorrow.match_hometeam_name}</div>
+                        
+                        <div className="mx-4 text-xl font-semibold">VS</div>
+                        
+                        <div className="flex-1 text-right font-semibold">{tomorrow.match_awayteam_name}</div>
+                      </div>
+
+                      <div className="mt-2 text-center text-sm text-gray-400">
+                        <p className="font-semibold">Match Time: {tomorrow.match_time} - Match Date: {tomorrow.match_date}</p>
+                      </div>
+                    </li>
+                  ))
+                ) : (
+                  <li>No matches available</li>
+                )}
               </ul>
             </div>
           </section>
 
           <section className="lg:grid-cols-3 gap-8 mb-16">
-            <h2 className="text-3xl font-semibold text-blue-400 mb-8">League Standings</h2>
+            <h2 className="text-3xl font-semibold text-blue-400 mb-8">{matches[0]?.league_name} Standings ({matches[0]?.country_name})</h2>
             <div className="overflow-x-auto bg-gray-700 rounded-lg shadow-lg">
               <table className="min-w-full text-sm text-left text-gray-400">
                 <thead className="bg-gray-800">
@@ -134,35 +237,57 @@ const HomePages = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr className="bg-gray-800 hover:bg-gray-600">
-                    <td className="px-6 py-3">1</td>
-                    <td className="px-6 py-3">Team A</td>
-                    <td className="px-6 py-3">20</td>
-                    <td className="px-6 py-3">15</td>
-                    <td className="px-6 py-3">3</td>
-                    <td className="px-6 py-3">2</td>
-                    <td className="px-6 py-3">48</td>
-                  </tr>
-                  <tr className="bg-gray-800 hover:bg-gray-600">
-                    <td className="px-6 py-3">2</td>
-                    <td className="px-6 py-3">Team B</td>
-                    <td className="px-6 py-3">20</td>
-                    <td className="px-6 py-3">14</td>
-                    <td className="px-6 py-3">4</td>
-                    <td className="px-6 py-3">2</td>
-                    <td className="px-6 py-3">46</td>
-                  </tr>
-                  <tr className="bg-gray-800 hover:bg-gray-600">
-                    <td className="px-6 py-3">3</td>
-                    <td className="px-6 py-3">Team C</td>
-                    <td className="px-6 py-3">20</td>
-                    <td className="px-6 py-3">12</td>
-                    <td className="px-6 py-3">5</td>
-                    <td className="px-6 py-3">3</td>
-                    <td className="px-6 py-3">41</td>
-                  </tr>
+                  {matches && matches.length > 0 ? (
+                    matches.map((team, index) => {
+                      const isRelegated   = team.overall_promotion === "Relegation - Serie B";
+                      const isChampions   = team.overall_promotion === "Promotion - Champions League (League phase: )";
+                      const isEuropa      = team.overall_promotion === "Promotion - Europa League (League phase: )";
+                      const isConference  = team.overall_promotion === "Promotion - Conference League (Qualification: )";
+
+                      return (
+                        <tr
+                          key={team.teamId}
+                          className={`bg-gray-800 hover:bg-gray-600 ${
+                            isRelegated
+                              ? "bg-red-600"
+                              : isChampions
+                              ? "bg-blue-600"
+                              : isEuropa
+                              ? "bg-orange-600"
+                              : isConference
+                              ? "bg-green-600"
+                              : ""
+                          }`}
+                        >
+                          <td className="px-6 py-3">{index + 1}</td>
+                          <td className="px-6 py-3">{team.team_name}</td>
+                          <td className="px-6 py-3">{team.overall_league_payed}</td>
+                          <td className="px-6 py-3">{team.overall_league_W}</td>
+                          <td className="px-6 py-3">{team.overall_league_D}</td>
+                          <td className="px-6 py-3">{team.overall_league_L}</td>
+                          <td className="px-6 py-3">{team.overall_league_PTS}</td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-3 text-center">
+                        No standings data available
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
+
               </table>
+            </div>
+            <div className="mb-4 text-gray-400">
+              <p className="font-semibold text-blue-400">Information:</p>
+              <ul>
+                <li><span className="text-blue-600">🟦</span> Promotion - Champions League</li>
+                <li><span className="text-red-600">🟥</span> Relegation - Serie B</li>
+                <li><span className="text-orange-600">🟧</span> Promotion - Europa League (League phase)</li>
+                <li><span className="text-green-600">🟩</span> Promotion - Conference League (Qualification)</li>
+              </ul>
             </div>
           </section>
 
