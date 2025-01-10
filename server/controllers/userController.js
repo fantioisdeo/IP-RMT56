@@ -8,8 +8,9 @@ exports.register = async (req, res, next) => {
         const data = await User.create(req.body)
 
         res.status(201).json({
-            id: data.id,
-            email: data.email,
+            id        : data.id,
+            email     : data.email,
+            message   : "Register Successful"
         });
 
     } catch (error) {
